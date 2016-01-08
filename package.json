@@ -1,0 +1,12 @@
+{
+  "name": "large-file-uploader-spike",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "karma start",
+    "start": "nodemon server.js"
+  },
+  "author": "Harun Hasdal",
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,18 @@
+.Counter {
+  background-color: #ececec;
+  padding: 20px;
+  width: 300px;
+
+  &__Button {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    font-size: x-large;
+    vertical-align: middle;
+
+    &:hover {
+      background-color: #9da0a4;
+      cursor: pointer;
+    }
+  }
+}
