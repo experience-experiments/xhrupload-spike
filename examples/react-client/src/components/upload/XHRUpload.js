@@ -144,7 +144,7 @@ export default class XHRUpload extends React.Component {
   }
 
   render() {
-    const displayButton = !this.props.auto || (this.state.progress < 100);
+    const displayButton = !this.props.auto && this.state.progress < 100;
     return (
       <div className="XHRUpload">
         <div className="XHRUpload__drop-target"

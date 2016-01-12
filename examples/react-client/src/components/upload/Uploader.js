@@ -30,6 +30,16 @@ export default class Uploader extends React.Component {
         `}
       </pre>
       <XHRUpload url={UPLOAD_URL} auto/>
+      <pre>
+        {`
+<XHRUpload
+  url='${UPLOAD_URL}'
+  auto
+  preview
+/>
+        `}
+      </pre>
+      <XHRUpload url={UPLOAD_URL} auto preview/>
     </div>
     );
   }
