@@ -9,6 +9,7 @@ export class App extends Component {
     return (
       <div className="App">
         <nav className="App__Menu">
+          <Link className="App__MenuItem" to="/upload">Uploader</Link>
           <Link className="App__MenuItem" to="/counter">Counter</Link>
         </nav>
         {this.props.children}

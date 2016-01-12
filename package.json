@@ -5,8 +5,12 @@
   "private": true,
   "scripts": {
     "test": "karma start",
-    "start": "nodemon server.js"
+    "start": "nodemon --ignore src/ --ignore test/ server.js"
   },
   "author": "Harun Hasdal",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "busboy": "^0.2.12",
+    "connect-busboy": "0.0.2"
+  }
 }

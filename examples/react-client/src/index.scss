@@ -1,100 +1,57 @@
 @font-face {
-  font-family: 'icomoon';
-  src:url('assets/fonts/icons.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'icomoon';
+    src: url('assets/fonts/icomoon.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
 
 [class^="icon-"], [class*=" icon-"] {
-  font-family: 'icomoon';
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'icomoon' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
 
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-error_outline:before {
-  content: "\e001";
-}
-.icon-add_circle_outline:before {
-  content: "\e06c";
-}
-.icon-remove_circle_outline:before {
-  content: "\e081";
-}
-.icon-select_all:before {
-  content: "\e086";
-}
-.icon-insert_drive_file:before {
-  content: "\e0e7";
-}
-.icon-tune:before {
-  content: "\e1ba";
-}
-.icon-view_comfortable:before {
-  content: "\e1bb";
-}
-.icon-view_compact:before {
-  content: "\e1bc";
-}
-.icon-place:before {
-  content: "\e1f7";
-}
-.icon-arrow_drop_down:before {
-  content: "\e201";
-}
-.icon-arrow_drop_up:before {
-  content: "\e203";
-}
-.icon-chevron_left:before {
-  content: "\e207";
-}
-.icon-chevron_right:before {
-  content: "\e208";
-}
-.icon-close:before {
-  content: "\e209";
-}
-.icon-expand_less:before {
-  content: "\e20a";
-}
-.icon-expand_more:before {
-  content: "\e20b";
-}
-.icon-notifications:before {
-  content: "\e24a";
-}
-.icon-notifications_off:before {
-  content: "\e24c";
-}
-.icon-notifications_active:before {
-  content: "\e24d";
-}
-.icon-person:before {
-  content: "\e253";
-}
-.icon-star:before {
-  content: "\e260";
-}
-.icon-star_outline:before {
-  content: "\e262";
-}
-.icon-delete:before {
-  content: "\e287";
-}
-.icon-description:before {
-  content: "\e288";
-}
 .icon-home:before {
-  content: "\e29e";
+    content: "\e900";
 }
-.icon-info_outline:before {
-  content: "\e2a3";
+.icon-file:before {
+    content: "\e901";
+}
+.icon-user:before {
+    content: "\e902";
+}
+.icon-spinner:before {
+    content: "\e903";
+}
+.icon-upload:before {
+    content: "\e904";
+}
+.icon-star-empty:before {
+    content: "\e905";
+}
+.icon-star-full:before {
+    content: "\e906";
+}
+.icon-notification:before {
+    content: "\e907";
+}
+.icon-info:before {
+    content: "\e908";
+}
+.icon-cancel-circle:before {
+    content: "\e909";
+}
+.icon-checkmark:before {
+    content: "\e90a";
 }
 
 #app {

@@ -3,7 +3,7 @@
 import React from 'react';
 import TestUtils from 'react/lib/ReactTestUtils';
 
-import Counter from '../../client/components/counter/Counter.js';
+import Counter from '../../src/components/counter/Counter.js';
 import expect from 'expect';
 
 describe('Counter component', () => {

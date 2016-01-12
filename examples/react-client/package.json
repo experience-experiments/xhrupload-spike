@@ -11,7 +11,7 @@
     "eslint": "eslint ./src/",
     "copy": "copyfiles -f ./index.html ./dist",
     "build": "npm run clean && webpack --config webpack.config.prod.js && npm run copy",
-    "serve": "node scripts/openDevServer.js && webpack-dev-server --config webpack.config.dev.js --port 8001"
+    "start": "node scripts/openDevServer.js && webpack-dev-server --config webpack.config.dev.js --port 8001"
   },
   "engines": {
     "node": ">=4.2.1",
