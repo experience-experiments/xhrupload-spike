@@ -1,16 +1,15 @@
 {
-  "name": "large-file-uploader-spike",
+  "name": "file-uploader-spike",
   "version": "1.0.0",
   "description": "",
   "private": true,
   "scripts": {
-    "test": "karma start",
     "start": "nodemon --ignore src/ --ignore test/ server.js"
   },
   "author": "Harun Hasdal",
   "license": "UNLICENSED",
   "dependencies": {
     "busboy": "^0.2.12",
-    "connect-busboy": "0.0.2"
+    "express": "^4.13.3"
   }
 }

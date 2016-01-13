@@ -1,12 +1,11 @@
 'use strict';
 
 const express = require('express');
-const app = express();
-var busboy = require('connect-busboy');
-const port = 3000;
+const Busboy = require('busboy');
 const fs = require('fs');
 
-app.use(busboy({ immediate: true }));
+const port = 3000;
+const app = express();
 
 app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:8001");
@@ -19,9 +18,9 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/uploadfile', (req, res) => {
-	let saveTo = '';
-	req.busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-		saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
+  const busboy = new Busboy({ headers: req.headers });
+	busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+		const saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
     console.log('Will stream into ' + saveTo);
 		file.pipe(fs.createWriteStream(saveTo));
 		console.log('Started receiving:  [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
@@ -32,10 +31,10 @@ app.post('/api/uploadfile', (req, res) => {
 			console.log('File [' + fieldname + '] Finished');
 		});
 	});
-	req.busboy.on('finish', function() {
+	busboy.on('finish', function() {
 		res.end('done');
 	});
-	req.pipe(req.busboy);
+	req.pipe(busboy);
 });
 
 app.listen(port, function () {
