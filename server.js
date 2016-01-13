@@ -8,7 +8,7 @@ const port = 3000;
 const app = express();
 
 app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:8001");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
  });
@@ -19,8 +19,9 @@ app.get('/', (req, res) => {
 
 app.post('/api/uploadfile', (req, res) => {
   const busboy = new Busboy({ headers: req.headers });
+  let saveTo = __dirname + '/uploads/.tmp-' +  + Date.now();
 	busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-		const saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
+		saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
     console.log('Will stream into ' + saveTo);
 		file.pipe(fs.createWriteStream(saveTo));
 		console.log('Started receiving:  [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
@@ -33,10 +34,14 @@ app.post('/api/uploadfile', (req, res) => {
 	});
 	busboy.on('finish', function() {
 		res.end('done');
+    // Delete the file after the upload is finished for storage space reasons
+    if(fs.accessSync(saveTo)){
+      fs.unlink(saveTo);
+    }
 	});
 	req.pipe(busboy);
 });
 
-app.listen(port, function () {
+app.listen(port, '0.0.0.0', function () {
   console.log(`Uploader server listening on port ${port}!`);
 });
