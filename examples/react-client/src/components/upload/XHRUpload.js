@@ -8,10 +8,16 @@ export default class XHRUpload extends React.Component {
     return {
       url: React.PropTypes.string.isRequired,
       auto: React.PropTypes.bool,
-      preview: React.PropTypes.bool,
+      dragPreview: React.PropTypes.bool,
       fieldName: React.PropTypes.string,
       buttonLabel: React.PropTypes.string,
       dropzoneLabel: React.PropTypes.string,
+      maxSize: React.PropTypes.number,
+      chunks: React.PropTypes.bool,
+      chunkSize: React.PropTypes.number,
+      localStore: React.PropTypes.bool,
+      maxFiles: React.PropTypes.number,
+      encrypt: React.PropTypes.bool,
       debug: React.PropTypes.bool,
     };
   }
@@ -19,10 +25,16 @@ export default class XHRUpload extends React.Component {
   static get defaultProps() {
     return {
       auto: false,
-      preview: false,
+      dragPreview: false,
       fieldName: 'datafile',
       buttonLabel: 'Upload',
-      dropzoneLabel: 'Click to select or Drag the file here',
+      dropzoneLabel: 'Drag and drop your files here or pick them from your computer',
+      maxSize: 25 * 1024 * 1024,
+      chunks: false,
+      chunkSize: 512 * 1024,
+      localStore: false,
+      maxFiles: 1,
+      encrypt: false,
       debug: true
     };
   }
@@ -44,7 +56,7 @@ export default class XHRUpload extends React.Component {
 
   onChange() {
     const file = this.refs.fileInput.files[0];
-    if (this.props.preview) {
+    if (this.props.dragPreview) {
       file.preview = window.URL.createObjectURL(file);
     }
     this.setState({file: file}, () => {
@@ -81,7 +93,7 @@ export default class XHRUpload extends React.Component {
 
     const droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
     const file = droppedFiles[0];
-    if (this.props.preview) {
+    if (this.props.dragPreview) {
       file.preview = window.URL.createObjectURL(file);
     }
     this.setState({file: file}, () => {
@@ -139,7 +151,7 @@ export default class XHRUpload extends React.Component {
         </div>
       );
     }
-    return <p>{this.props.dropzoneLabel}</p>;
+    return <div className="XHRUpload__placeholder"><p>{this.props.dropzoneLabel}</p><center className="icon-upload"/></div>;
   }
 
   renderButton() {
