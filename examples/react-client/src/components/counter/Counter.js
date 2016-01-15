@@ -1,11 +1,31 @@
 import React from 'react';
 
-import './Counter.scss';
+const MyH2 = ({step, counter}) => {
+  MyH2.propTypes = {
+    step: React.PropTypes.number,
+    counter: React.PropTypes.number
+  };
+  return (
+    <h2>
+      Counter (step = {step}): {counter}
+    </h2>
+  );
+};
 
 /**
  * Counter class documentation
  */
 export default class Counter extends React.Component {
+  static get propTypes() {
+    return {
+      step: React.PropTypes.number.isRequired
+    };
+  }
+
+  static get defaultProps() {
+    return { step: 1 };
+  }
+
   constructor(props) {
     super(props);
     this.state = { counter: 0 };
@@ -24,19 +44,11 @@ export default class Counter extends React.Component {
   }
 
   render() {
-    return (<div className="Counter">
-        <h2>
-          Counter (step = { this.props.step}): {this.state.counter}
-        </h2>
-        <a><span className="Counter__Button icon-add_circle_outline" onClick={this.handleIncrement.bind(this)}/></a>
-        <a><span className="Counter__Button icon-remove_circle_outline" onClick={this.handleDecrement.bind(this)}/></a>
+    return (<div style={{backgroundColor: '#ececec', padding: 20}}>
+        <MyH2 step={this.props.step} counter={this.state.counter}/>
+        <a onClick={this.handleIncrement.bind(this)} className="icon-star-full icon-button">add</a><br/>
+        <a onClick={this.handleDecrement.bind(this)} className="icon-star-empty icon-button">subtract</a>
       </div>
     );
   }
 }
-
-Counter.propTypes = {
-  step: React.PropTypes.number.isRequired
-};
-
-Counter.defaultProps = { step: 1 };
