@@ -2,8 +2,6 @@ import React from 'react';
 
 const defaultStyles = {
   root: {
-    maxWidth: 900,
-    width: '100%',
     border: '1px solid #CACACA',
     padding: 20
   },
@@ -38,13 +36,26 @@ const defaultStyles = {
     borderTop: '1px solid #CACACA'
   },
   fileDetails: {
-
+    paddingTop: 10,
+    display: 'flex',
+    alignItems: 'flex-start'
+  },
+  fileName: {
+    flexGrow: '8'
+  },
+  fileSize: {
+    'float': 'right',
+    flexGrow: '2',
+    alignSelf: 'flex-end'
+  },
+  removeButton: {
+    alignSelf: 'flex-end',
   },
   progress: {
     marginTop: 10,
     width: '100%',
     height: 16,
-    '-webkit-appearance': 'none'
+    WebkitAppearance: 'none'
   }
 };
 
@@ -54,7 +65,6 @@ export default class XHRUpload extends React.Component {
     return {
       url: React.PropTypes.string.isRequired,
       auto: React.PropTypes.bool,
-      dragPreview: React.PropTypes.bool,
       fieldName: React.PropTypes.string,
       buttonLabel: React.PropTypes.string,
       dropzoneLabel: React.PropTypes.string,
@@ -72,7 +82,6 @@ export default class XHRUpload extends React.Component {
   static get defaultProps() {
     return {
       auto: false,
-      dragPreview: false,
       fieldName: 'datafile',
       buttonLabel: 'Upload',
       dropzoneLabel: 'Drag and drop your files here or pick them from your computer',
@@ -83,14 +92,15 @@ export default class XHRUpload extends React.Component {
       maxFiles: 1,
       encrypt: false,
       styles: defaultStyles,
-      debug: true
+      debug: false
     };
   }
 
   constructor(props) {
     super(props);
-    this.state = {file: null, progress: 0, log: []};
+    this.state = {items: [], log: []};
     this.activeDrag = 0;
+    this.xhrs = [];
   }
 
   onClick() {
@@ -98,18 +108,14 @@ export default class XHRUpload extends React.Component {
   }
 
   onUploadButtonClick() {
-    const file = this.refs.fileInput.files[0];
-    this.upload(file);
+    this.upload();
   }
 
   onChange() {
-    const file = this.refs.fileInput.files[0];
-    if (this.props.dragPreview) {
-      file.preview = window.URL.createObjectURL(file);
-    }
-    this.setState({file: file}, () => {
+    const items = this.filesToItems(this.refs.fileInput.files);
+    this.setState({items: items}, () => {
       if(this.props.auto) {
-        this.upload(file);
+        this.upload(items);
       }
     });
   }
@@ -140,37 +146,70 @@ export default class XHRUpload extends React.Component {
     this.setState({isActive: false});
 
     const droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-    const file = droppedFiles[0];
-    if (this.props.dragPreview) {
-      file.preview = window.URL.createObjectURL(file);
-    }
-    this.setState({file: file}, () => {
+    const items = this.filesToItems(droppedFiles);
+
+    this.setState({items: items}, () => {
       if(this.props.auto) {
-        this.upload(file);
+        this.upload(items);
       }
     });
   }
 
-  upload(file) {
-    this.log(`Uploding ${file.name}`);
-    const formData = new FormData();
-    const xhr = new XMLHttpRequest();
+  updateFileProgress(index, progress) {
+    const newItems = [...this.state.items];
+    newItems[index] = Object.assign({}, this.state.items[index], {progress: progress});
+    this.setState({items: newItems});
+  }
 
-    formData.append(this.props.fieldName, file, file.name);
+  cancelFile(index) {
+    this.log(`Cancelling ${index}`);
+    const newItems = [...this.state.items];
+    newItems[index] = Object.assign({}, this.state.items[index], {cancelled: true});
+    if(this.xhrs[index]) {
+      this.xhrs[index].abort();
+    }
+    this.setState({items: newItems});
+  }
 
-    xhr.onload = (e) => {
-      this.log(`${xhr.status}:${xhr.response}:${e}`);
-    };
+  upload(items) {
+    if(items) {
+      items.forEach((item) => {
+        this.uploadFile(item.file, progress => {
+          this.updateFileProgress(item.index, progress);
+        });
+      });
+    }
+  }
 
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const progress = (e.loaded / e.total) * 100;
-        this.setState({progress: progress});
-      }
-    };
+  uploadFile(file, progressCalback) {
+    if(file) {
+      const formData = new FormData();
+      const xhr = new XMLHttpRequest();
 
-    xhr.open('POST', this.props.url, true);
-    xhr.send(formData);
+      formData.append(this.props.fieldName, file, file.name);
+
+      xhr.onload = (e) => {
+        this.log(`${xhr.status}:${xhr.response}:${e}`);
+      };
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          progressCalback((e.loaded / e.total) * 100);
+        }
+      };
+
+      xhr.open('POST', this.props.url, true);
+      xhr.send(formData);
+      this.xhrs[file.index] = xhr;
+    }
+  }
+
+  filesToItems(files) {
+    const fileItems = Array.prototype.slice.call(files).splice(0, this.props.maxFiles);
+    const items = fileItems.map((f, i) => {
+      return {file: f, index: i, progress: 0, cancelled: false};
+    });
+    return items;
   }
 
   log(message) {
@@ -179,26 +218,56 @@ export default class XHRUpload extends React.Component {
     }
   }
 
-  renderFileSet(file) {
-    if(file) {
+  renderDropTarget() {
+    const styles = this.props.styles;
+    let dropTargetStyle = styles.dropTargetStyle;
+    if(this.state.isActive) {
+      dropTargetStyle = Object.assign({}, dropTargetStyle, styles.dropTargetActiveStyle);
+    }
+
+    return (
+      <div style={dropTargetStyle}
+        onClick={e => this.onClick(e)}
+        onDragEnter={e => this.onDragEnter(e)}
+        onDragOver={e => this.onDragOver(e)}
+        onDragLeave={e => this.onDragLeave(e)}
+        onDrop={e => this.onDrop(e)}
+      >
+        <div style={styles.placeHolderStyle}>
+          <p>{this.props.dropzoneLabel}</p>
+          <center className="icon-upload icon-large"/>
+        </div>
+      </div>
+    );
+  }
+
+  renderFileSet() {
+    const items = this.state.items;
+    if(items) {
       const {styles} = this.props;
       const progress = this.state.progress;
-      const sizeInMB = (file.size / (1024 * 1024)).toPrecision(2);
+
       return (
         <div style={styles.fileset}>
-          <div style={styles.fileDetails}>
-          <div>
-            <span className="icon-file">&nbsp;</span>
-            <span style={null}>{`${file.name}, ${file.type}`}</span>
-            <span style={null}>{`${sizeInMB} Mb`}</span>
-            <span style={null}></span>
-          </div>
-          <div>
-            {
-              this.state.progress > 0 ? <progress style={styles.progress} min="0" max="100" value={progress}>{progress}%</progress> : null
-            }
-          </div>
-          </div>
+        {
+          items.filter(item => !item.cancelled).map((item) => {
+            const file = item.file;
+            const sizeInMB = (file.size / (1024 * 1024)).toPrecision(2);
+            return (
+              <div key={item.index}>
+                <div style={styles.fileDetails}>
+                  <span className="icon-file icon-large">&nbsp;</span>
+                  <span style={styles.fileName}>{`${file.name}, ${file.type}`}</span>
+                  <span style={styles.fileSize}>{`${sizeInMB} Mb`}</span>
+                  <span style={styles.removeButton} className="icon-cancel-circle icon-button" onClick={() => this.cancelFile(item.index)}></span>
+                </div>
+                <div>
+                  <progress style={styles.progress} min="0" max="100" value={item.progress}>{item.progress}%</progress>
+                </div>
+              </div>
+            );
+          })
+        }
         </div>
       );
     }
@@ -207,11 +276,16 @@ export default class XHRUpload extends React.Component {
 
   renderButton() {
     const {styles} = this.props;
-    const displayButton = !this.props.auto && this.state.progress < 100;
+    const displayButton = !this.props.auto;
     if(displayButton) {
-      return <button style={styles.uploadButtonStyle} onClick={() => this.upload(this.state.file)}>{this.props.buttonLabel}</button>;
+      return <button style={styles.uploadButtonStyle} onClick={() => this.upload(this.state.files)}>{this.props.buttonLabel}</button>;
     }
     return null;
+  }
+
+  renderInput() {
+    const maxFiles = this.props.maxFiles;
+    return <input style={{display: 'none'}} multiple={maxFiles > 1} type="file" ref="fileInput" onChange={() => this.onChange()}/>;
   }
 
   renderLog() {
@@ -223,28 +297,13 @@ export default class XHRUpload extends React.Component {
 
   render() {
     const {styles} = this.props;
-    let dropTargetStyle = styles.dropTargetStyle;
-    if(this.state.isActive) {
-      dropTargetStyle = Object.assign({}, dropTargetStyle, styles.dropTargetActiveStyle);
-    }
 
     return (
       <div style={styles.root}>
-        <div style={dropTargetStyle}
-          onClick={e => this.onClick(e)}
-          onDragEnter={e => this.onDragEnter(e)}
-          onDragOver={e => this.onDragOver(e)}
-          onDragLeave={e => this.onDragLeave(e)}
-          onDrop={e => this.onDrop(e)}
-        >
-          <div style={styles.placeHolderStyle}>
-            <p>{this.props.dropzoneLabel}</p>
-            <center className="icon-upload"/>
-          </div>
-        </div>
-        {this.renderFileSet(this.state.file)}
+        {this.renderDropTarget()}
+        {this.renderFileSet()}
         {this.renderButton()}
-        <input style={{display: 'none'}} type="file" ref="fileInput" onChange={() => this.onChange()}/>
+        {this.renderInput()}
         {this.renderLog()}
       </div>
     );

@@ -16,20 +16,21 @@ export default class Uploader extends React.Component {
         {`
 <XHRUpload
   url='${UPLOAD_URL}'
+  maxFiles='2'
 />
         `}
       </pre>
-      <XHRUpload url={UPLOAD_URL}/>
+      <XHRUpload url={UPLOAD_URL} maxFiles={2}/>
       <pre style={{fontSize: 10}}>
         {`
 <XHRUpload
   url='${UPLOAD_URL}'
   auto
-  preview
+  maxFiles='5'
 />
         `}
       </pre>
-      <XHRUpload url={UPLOAD_URL} auto preview/>
+      <XHRUpload url={UPLOAD_URL} auto maxFiles={5}/>
     </div>
     );
   }
