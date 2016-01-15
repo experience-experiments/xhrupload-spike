@@ -58,3 +58,20 @@
   font-family: sans-serif;
   font-size: 14px;
 }
+
+body {
+  background-color: #F4F4F4;
+}
+
+$lightBlue: #4A90E2;
+$lightGreen: #6DB11E;
+
+progress {
+  &::-moz-progress-bar { background: $lightBlue; }
+  &::-webkit-progress-value { background: $lightBlue; }
+
+  &[value="100"]{
+    &::-moz-progress-bar { background: $lightGreen; }
+    &::-webkit-progress-value { background: $lightGreen; }
+  }
+}

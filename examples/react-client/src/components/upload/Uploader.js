@@ -1,9 +1,9 @@
 import React from 'react';
 
-import './Uploader.scss';
-
 import XHRUpload from './XHRUpload';
+
 const UPLOAD_URL = `http://${window.location.hostname}:3000/api/uploadfile`;
+
 /**
  * Uploader class documentation
  */
@@ -11,8 +11,8 @@ export default class Uploader extends React.Component {
 
   render() {
     return (
-    <div className="Uploader">
-      <pre>
+    <div>
+      <pre style={{fontSize: 10}}>
         {`
 <XHRUpload
   url='${UPLOAD_URL}'
@@ -20,7 +20,7 @@ export default class Uploader extends React.Component {
         `}
       </pre>
       <XHRUpload url={UPLOAD_URL}/>
-      <pre>
+      <pre style={{fontSize: 10}}>
         {`
 <XHRUpload
   url='${UPLOAD_URL}'

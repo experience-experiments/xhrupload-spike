@@ -1,6 +1,52 @@
 import React from 'react';
 
-import './XHRUpload.scss';
+const defaultStyles = {
+  root: {
+    maxWidth: 900,
+    width: '100%',
+    border: '1px solid #CACACA',
+    padding: 20
+  },
+  dropTargetStyle: {
+    border: '3px dashed #4A90E2',
+    padding: 10,
+    backgroundColor: '#ffffff',
+    cursor: 'pointer'
+  },
+  dropTargetActiveStyle: {
+    backgroundColor: '#ccffcc'
+  },
+  placeHolderStyle: {
+    paddingLeft: '20%',
+    paddingRight: '20%',
+    textAlign: 'center'
+  },
+  uploadButtonStyle: {
+    width: '100%',
+    marginTop: 10,
+    height: 32,
+    alignSelf: 'center',
+    cursor: 'pointer',
+    backgroundColor: '#D9EBFF',
+    border: '1px solid #5094E3',
+    fontSize: 14
+  },
+  fileset: {
+    marginTop: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderTop: '1px solid #CACACA'
+  },
+  fileDetails: {
+
+  },
+  progress: {
+    marginTop: 10,
+    width: '100%',
+    height: 16,
+    '-webkit-appearance': 'none'
+  }
+};
 
 export default class XHRUpload extends React.Component {
 
@@ -18,6 +64,7 @@ export default class XHRUpload extends React.Component {
       localStore: React.PropTypes.bool,
       maxFiles: React.PropTypes.number,
       encrypt: React.PropTypes.bool,
+      styles: React.PropTypes.object,
       debug: React.PropTypes.bool,
     };
   }
@@ -35,6 +82,7 @@ export default class XHRUpload extends React.Component {
       localStore: false,
       maxFiles: 1,
       encrypt: false,
+      styles: defaultStyles,
       debug: true
     };
   }
@@ -103,13 +151,6 @@ export default class XHRUpload extends React.Component {
     });
   }
 
-  getDropTargetClass() {
-    if(this.state.isActive) {
-      return 'XHRUpload__drop-target--active';
-    }
-    return 'XHRUpload__drop-target';
-  }
-
   upload(file) {
     this.log(`Uploding ${file.name}`);
     const formData = new FormData();
@@ -138,52 +179,72 @@ export default class XHRUpload extends React.Component {
     }
   }
 
-  renderFileDetails(file) {
+  renderFileSet(file) {
     if(file) {
+      const {styles} = this.props;
       const progress = this.state.progress;
       const sizeInMB = (file.size / (1024 * 1024)).toPrecision(2);
       return (
-        <div className="XHRUpload__file-details">
-          <span className="icon-file">&nbsp;</span><span>{`${file.name}, ${file.type}, ${sizeInMB}MB`}</span>
-          {
-            this.state.progress > 0 ? <progress className="XHRUpload__progress" min="0" max="100" value={progress}>{progress}%</progress> : null
-          }
+        <div style={styles.fileset}>
+          <div style={styles.fileDetails}>
+          <div>
+            <span className="icon-file">&nbsp;</span>
+            <span style={null}>{`${file.name}, ${file.type}`}</span>
+            <span style={null}>{`${sizeInMB} Mb`}</span>
+            <span style={null}></span>
+          </div>
+          <div>
+            {
+              this.state.progress > 0 ? <progress style={styles.progress} min="0" max="100" value={progress}>{progress}%</progress> : null
+            }
+          </div>
+          </div>
         </div>
       );
     }
-    return <div className="XHRUpload__placeholder"><p>{this.props.dropzoneLabel}</p><center className="icon-upload"/></div>;
+    return null;
   }
 
   renderButton() {
+    const {styles} = this.props;
     const displayButton = !this.props.auto && this.state.progress < 100;
     if(displayButton) {
-      return <button className="XHRUpload__upload-button" onClick={() => this.upload(this.state.file)}>{this.props.buttonLabel}</button>;
+      return <button style={styles.uploadButtonStyle} onClick={() => this.upload(this.state.file)}>{this.props.buttonLabel}</button>;
     }
     return null;
   }
 
   renderLog() {
     if(this.props.debug) {
-      return <div className="logger">{this.state.log.map((item, i) => <pre key={i}>{item}</pre>)}</div>;
+      return <div>{this.state.log.map((item, i) => <pre key={i}>{item}</pre>)}</div>;
     }
     return null;
   }
 
   render() {
-    const dropTargetClass = this.getDropTargetClass();
+    const {styles} = this.props;
+    let dropTargetStyle = styles.dropTargetStyle;
+    if(this.state.isActive) {
+      dropTargetStyle = Object.assign({}, dropTargetStyle, styles.dropTargetActiveStyle);
+    }
+
     return (
-      <div className="XHRUpload">
-        <div className={dropTargetClass}
+      <div style={styles.root}>
+        <div style={dropTargetStyle}
           onClick={e => this.onClick(e)}
           onDragEnter={e => this.onDragEnter(e)}
           onDragOver={e => this.onDragOver(e)}
           onDragLeave={e => this.onDragLeave(e)}
           onDrop={e => this.onDrop(e)}
         >
-          {this.renderFileDetails(this.state.file)}
+          <div style={styles.placeHolderStyle}>
+            <p>{this.props.dropzoneLabel}</p>
+            <center className="icon-upload"/>
+          </div>
         </div>
+        {this.renderFileSet(this.state.file)}
         {this.renderButton()}
-        <input className="XHRUpload__input" type="file" ref="fileInput" onChange={() => this.onChange()}/>
+        <input style={{display: 'none'}} type="file" ref="fileInput" onChange={() => this.onChange()}/>
         {this.renderLog()}
       </div>
     );
