@@ -4,7 +4,9 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "nodemon --ignore src/ --ignore test/ server.js"
+    "dev": "nodemon --ignore src/ --ignore test/ server.js",
+    "start": "NODE_ENV=production node server/app.js > app.log 2>app.log & echo $! >> pid",
+    "stop": "kill $(cat pid 2> /dev/null) 2>/dev/null",
   },
   "author": "Harun Hasdal",
   "license": "UNLICENSED",
