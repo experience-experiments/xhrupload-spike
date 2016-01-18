@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "test": "karma start",
+    "test-watch": "karma start --auto-watch --no-single-run",
     "eslint": "eslint ./src/",
     "copy": "copyfiles -f ./index.html ./dist",
     "build": "npm run clean && webpack --config webpack.config.prod.js && npm run copy",
@@ -39,7 +40,9 @@
     "karma": "^0.13.15",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^0.5.3",
+    "karma-es6-shim": "^0.2.3",
     "karma-mocha": "^0.2.1",
+    "karma-mocha-reporter": "^1.1.5",
     "karma-phantomjs-launcher": "^0.2.1",
     "karma-phantomjs-shim": "^1.1.2",
     "karma-sourcemap-loader": "^0.3.6",
@@ -52,10 +55,11 @@
     "react-addons-test-utils": "^0.14.3",
     "rimraf": "^2.5.0",
     "sass-loader": "^3.1.2",
+    "sinon": "git+https://github.com/sinonjs/sinon.git",
     "style-loader": "^0.13.0",
     "url-loader": "^0.5.7",
-    "webpack": "^1.12.4",
-    "webpack-dev-server": "^1.12.1",
-    "webpack-hot-middleware": "^2.5.0"
+    "webpack": "^1.12.11",
+    "webpack-dev-server": "^1.14.1",
+    "webpack-hot-middleware": "^2.6.0"
   }
 }

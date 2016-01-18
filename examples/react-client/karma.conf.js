@@ -9,9 +9,9 @@ module.exports = (config) => {
     files: [
       './test/index.js'
     ],
-    frameworks: ['phantomjs-shim', 'mocha', 'chai'],
+    frameworks: ['phantomjs-shim', 'es6-shim', 'mocha', 'chai'],
     singleRun: true,
-    reporters: ['dots'],
+    reporters: ['mocha'],
     preprocessors: {
       './test/index.js': ['webpack', 'sourcemap']
     },
@@ -34,7 +34,9 @@ module.exports = (config) => {
       require('karma-webpack'),
       require('karma-sourcemap-loader'),
       require('karma-phantomjs-launcher'),
-      require('karma-phantomjs-shim')
+      require('karma-phantomjs-shim'),
+      require('karma-es6-shim'),
+      require('karma-mocha-reporter'),
     ]
   });
 };

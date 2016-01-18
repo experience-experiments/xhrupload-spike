@@ -220,7 +220,7 @@ export default class XHRUpload extends React.Component {
     }
 
     return (
-      <div style={dropTargetStyle}
+      <div ref="dropTarget" style={dropTargetStyle}
         onClick={e => this.onClick(e)}
         onDragEnter={e => this.onDragEnter(e)}
         onDragOver={e => this.onDragOver(e)}
