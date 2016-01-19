@@ -17,8 +17,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         'NODE_ENV': JSON.stringify('production')
-      },
-      'GATEWAY_URL': JSON.stringify('http://ratchet-api.azurewebsites.net')
+      }
     }),
     new webpack.optimize.UglifyJsPlugin({
       compressor: {

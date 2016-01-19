@@ -18,8 +18,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         'NODE_ENV': JSON.stringify('development')
-      },
-      'GATEWAY_URL': JSON.stringify('http://localhost:3000')
+      }
     })
   ],
   module: {

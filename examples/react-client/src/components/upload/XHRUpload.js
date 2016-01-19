@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 
 const defaultStyles = {
   root: {
@@ -74,6 +75,8 @@ export default class XHRUpload extends React.Component {
       localStore: React.PropTypes.bool,
       maxFiles: React.PropTypes.number,
       encrypt: React.PropTypes.bool,
+      clearTimeOut: React.PropTypes.number,
+      filesetTransitionName: React.PropTypes.string,
       styles: React.PropTypes.object,
       debug: React.PropTypes.bool,
     };
@@ -91,6 +94,8 @@ export default class XHRUpload extends React.Component {
       localStore: false,
       maxFiles: 1,
       encrypt: false,
+      clearTimeOut: 3000,
+      filesetTransitionName: 'fileset',
       styles: defaultStyles,
       debug: false
     };
@@ -159,6 +164,14 @@ export default class XHRUpload extends React.Component {
     const newItems = [...this.state.items];
     newItems[index] = Object.assign({}, this.state.items[index], {progress: progress});
     this.setState({items: newItems});
+    if(this.props.clearTimeOut > 0) {
+      const completed = newItems.filter(item => item.progress === 100 || item.cancelled).length;
+      if(completed === newItems.length) {
+        setTimeout(() => {
+          this.setState({items: []});
+        }, this.props.clearTimeOut);
+      }
+    }
   }
 
   cancelFile(index) {
@@ -237,23 +250,26 @@ export default class XHRUpload extends React.Component {
 
   renderFileSet() {
     const items = this.state.items;
-    if(items) {
+    const transitionName = this.props.filesetTransitionName;
+    if(items.length > 0) {
       const {styles} = this.props;
       const progress = this.state.progress;
 
       return (
+        <ReactCSSTransitionGroup component="div" transitionName={transitionName} transitionEnterTimeout={0} transitionLeaveTimeout={0}>
         <div style={styles.fileset}>
         {
           items.filter(item => !item.cancelled).map((item) => {
             const file = item.file;
             const sizeInMB = (file.size / (1024 * 1024)).toPrecision(2);
+            const actionButtonClass = item.progress < 100 ? 'icon-cancel-circle icon-button icon-red' : 'icon-checkmark icon-button icon-green';
             return (
               <div key={item.index}>
                 <div style={styles.fileDetails}>
                   <span className="icon-file icon-large">&nbsp;</span>
                   <span style={styles.fileName}>{`${file.name}, ${file.type}`}</span>
                   <span style={styles.fileSize}>{`${sizeInMB} Mb`}</span>
-                  <span style={styles.removeButton} className="icon-cancel-circle icon-button" onClick={() => this.cancelFile(item.index)}></span>
+                  <span style={styles.removeButton} className={actionButtonClass} onClick={() => this.cancelFile(item.index)}></span>
                 </div>
                 <div>
                   <progress style={styles.progress} min="0" max="100" value={item.progress}>{item.progress}%</progress>
@@ -263,9 +279,10 @@ export default class XHRUpload extends React.Component {
           })
         }
         </div>
+        </ReactCSSTransitionGroup>
       );
     }
-    return null;
+    return <ReactCSSTransitionGroup component="div" transitionName={transitionName} transitionEnterTimeout={0} transitionLeaveTimeout={0}/>;
   }
 
   renderButton() {
