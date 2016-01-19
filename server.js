@@ -39,6 +39,12 @@ app.post('/api/uploadfile', (req, res) => {
       fs.unlink(saveTo);
     }
 	});
+  res.on('close', function() {
+    req.unpipe(busboy);
+    res.writeHead(400, { 'Connection': 'close' });
+    res.end();
+    console.log('Connection closed.');
+  });
 	req.pipe(busboy);
 });
 
