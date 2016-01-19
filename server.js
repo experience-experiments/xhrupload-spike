@@ -10,6 +10,8 @@ const app = express();
 app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.set('Connection', 'close'); // attempting to override default (keep-alive)
+  res.set('Proof', 'close');
   next();
  });
 
@@ -41,8 +43,6 @@ app.post('/api/uploadfile', (req, res) => {
 	});
   res.on('close', function() {
     req.unpipe(busboy);
-    res.writeHead(400, { 'Connection': 'close' });
-    res.end();
     console.log('Connection closed.');
   });
 	req.pipe(busboy);
