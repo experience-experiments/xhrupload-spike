@@ -48,6 +48,18 @@ app.post('/api/uploadfile', (req, res) => {
 	req.pipe(busboy);
 });
 
+function cleanup(){
+  var dirPath = __dirname + '/uploads/';
+  try { var files = fs.readdirSync(dirPath); }
+  catch(e) { return; }
+  for (var i = 0; i < files.length; i++) {
+    var filePath = dirPath + '/' + files[i];
+    fs.unlinkSync(filePath);
+  }
+  setTimout(cleanup, 60000);
+}
+
 app.listen(port, '0.0.0.0', function () {
   console.log(`Uploader server listening on port ${port}!`);
+  cleanup();
 });

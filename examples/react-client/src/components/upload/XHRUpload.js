@@ -165,7 +165,7 @@ export default class XHRUpload extends React.Component {
     newItems[index] = Object.assign({}, this.state.items[index], {progress: progress});
     this.setState({items: newItems});
     if(this.props.clearTimeOut > 0) {
-      const completed = newItems.filter(item => item.progress === 100 || item.cancelled).length;
+      const completed = newItems.filter(item => item.progress === 100).length;
       if(completed === newItems.length) {
         setTimeout(() => {
           this.setState({items: []});
@@ -178,6 +178,8 @@ export default class XHRUpload extends React.Component {
     const newItems = [...this.state.items];
     newItems[index] = Object.assign({}, this.state.items[index], {cancelled: true});
     if(this.xhrs[index]) {
+      this.xhrs[index].upload.removeEventListener('progress');
+      this.xhrs[index].removeEventListener('load');
       this.xhrs[index].abort();
     }
     this.setState({items: newItems});
