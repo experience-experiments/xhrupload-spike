@@ -32,6 +32,7 @@ logs
 node_modules
 
 # Runtime data
+pid
 pids
 *.pid
 *.seed
