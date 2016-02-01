@@ -22,7 +22,8 @@
     "history": "^1.17.0",
     "react": "^0.14.2",
     "react-dom": "^0.14.2",
-    "react-router": "^1.0.3"
+    "react-router": "^1.0.3",
+    "sjcl": "^1.0.3"
   },
   "devDependencies": {
     "babel-core": "^6.2.1",
