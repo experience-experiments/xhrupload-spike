@@ -2,7 +2,7 @@ import React from 'react';
 
 import XHRUpload from './XHRUpload';
 
-const UPLOAD_URL = `http://labs-upload.rmalabs.com:3000/api/uploadfile`;
+const UPLOAD_URL = `http://calimshan.local:3000/api/uploadfile`;
 
 export default class EncryptedUpload extends React.Component {
 

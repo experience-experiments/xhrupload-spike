@@ -220,7 +220,7 @@ export default class XHRUpload extends React.Component {
       };
       let chunkIndex = 0;
       while(start < SIZE) {
-        this.uploadChunk(item.file.slice(start, end), chunkIndex++, chunkProgressHandler);
+        this.uploadChunk(item.file.slice(start, end), chunkIndex++, item.file.name, chunkProgressHandler);
         start = end;
         end = start + BYTES_PER_CHUNK;
       }
@@ -231,9 +231,13 @@ export default class XHRUpload extends React.Component {
     }
   }
 
-  uploadChunk(blob, chunkIndex, progressCallback) {
+  uploadChunk(blob, chunkIndex, fileName, progressCallback) {
     if(blob) {
+      const formData = new FormData();
       const xhr = new XMLHttpRequest();
+
+      formData.append(this.props.fieldName, blob, `${fileName}-chunk${chunkIndex}`);
+
       xhr.onload = () => {
         progressCallback(100, chunkIndex);
       };
@@ -243,7 +247,7 @@ export default class XHRUpload extends React.Component {
         }
       };
       xhr.open('POST', this.props.url, true);
-      xhr.send(blob);
+      xhr.send(formData);
     }
   }
 
