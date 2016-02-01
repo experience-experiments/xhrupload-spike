@@ -54,7 +54,7 @@ function cleanup(){
     var filePath = dirPath + '/' + files[i];
     fs.unlinkSync(filePath);
   }
-  setTimout(cleanup, 60000);
+  setTimeout(cleanup, 60000);
 }
 
 app.listen(port, '0.0.0.0', function () {
