@@ -9,9 +9,7 @@ const app = express();
 
 app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.set('Connection', 'close'); // attempting to override default (keep-alive)
-  res.set('Proof', 'close');
+  res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
   next();
  });
 
@@ -21,9 +19,8 @@ app.get('/', (req, res) => {
 
 app.post('/api/uploadfile', (req, res) => {
   const busboy = new Busboy({ headers: req.headers });
-  let saveTo = __dirname + '/uploads/.tmp-' +  + Date.now();
 	busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-		saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
+		let saveTo = __dirname + '/uploads/' + fieldname + '-' + filename + Date.now();
     console.log('Will stream into ' + saveTo);
 		file.pipe(fs.createWriteStream(saveTo));
 		console.log('Started receiving:  [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
@@ -36,10 +33,6 @@ app.post('/api/uploadfile', (req, res) => {
 	});
 	busboy.on('finish', function() {
 		res.end('done');
-    // Delete the file after the upload is finished for storage space reasons
-    if(fs.accessSync(saveTo)){
-      fs.unlink(saveTo);
-    }
 	});
   res.on('close', function() {
     req.unpipe(busboy);
@@ -56,7 +49,7 @@ function cleanup(){
     var filePath = dirPath + '/' + files[i];
     fs.unlinkSync(filePath);
   }
-  setTimout(cleanup, 60000);
+  setTimeout(cleanup, 60000);
 }
 
 app.listen(port, '0.0.0.0', function () {

@@ -22,15 +22,16 @@ maxFiles='5'
       `}
     </pre>
     <XHRUpload url={UPLOAD_URL} auto maxFiles={5}/>
-      <pre style={{fontSize: 10}}>
-        {`
+
+    <pre style={{fontSize: 10}}>
+      {`
 <XHRUpload
-  url='${UPLOAD_URL}'
-  maxFiles='2'
+url='${UPLOAD_URL}'
+maxFiles='2'
 />
-        `}
-      </pre>
-      <XHRUpload url={UPLOAD_URL} maxFiles={2}/>
+      `}
+    </pre>
+    <XHRUpload url={UPLOAD_URL} maxFiles={2}/>
     </div>
     );
   }

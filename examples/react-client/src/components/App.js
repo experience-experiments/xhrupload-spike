@@ -32,6 +32,7 @@ export class App extends Component {
       <div style={style}>
         <nav style={menuStyle}>
           <Link style={menuItemStyle} to="/upload">Uploader</Link>
+          <Link style={menuItemStyle} to="/encryption">Encrypted Upload</Link>
           <Link style={menuItemStyle} to="/counter">Counter</Link>
         </nav>
         {this.props.children}

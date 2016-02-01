@@ -150,7 +150,7 @@ export default class XHRUpload extends React.Component {
     this.activeDrag = 0;
     this.setState({isActive: false});
 
-    const droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+    const droppedFiles = e.dataTransfer.files;
     const items = this.filesToItems(droppedFiles);
 
     this.setState({items: items}, () => {
@@ -160,18 +160,31 @@ export default class XHRUpload extends React.Component {
     });
   }
 
-  updateFileProgress(index, progress) {
-    const newItems = [...this.state.items];
-    newItems[index] = Object.assign({}, this.state.items[index], {progress: progress});
-    this.setState({items: newItems});
+  clearIfAllCompleted() {
     if(this.props.clearTimeOut > 0) {
-      const completed = newItems.filter(item => item.progress === 100).length;
-      if(completed === newItems.length) {
+      const completed = this.state.items.filter(item => item.progress === 100).length;
+      if(completed === this.state.items.length) {
         setTimeout(() => {
           this.setState({items: []});
         }, this.props.clearTimeOut);
       }
     }
+  }
+
+  updateFileProgress(index, progress) {
+    const newItems = [...this.state.items];
+    newItems[index] = Object.assign({}, this.state.items[index], {progress: progress});
+    this.setState({items: newItems}, this.clearIfAllCompleted);
+  }
+
+  updateFileChunkProgress(index, chunkIndex, progress) {
+    const newItems = [...this.state.items];
+    const currentItem = this.state.items[index];
+    const newProgressArr = [...currentItem.chunkProgress];
+    const totalProgress = newProgressArr.reduce((a, b) => a + b) / newProgressArr.length;
+    newProgressArr[chunkIndex] = progress;
+    newItems[index] = Object.assign({}, currentItem, {chunkProgress: newProgressArr, progress: totalProgress});
+    this.setState({items: newItems}, this.clearIfAllCompleted);
   }
 
   cancelFile(index) {
@@ -189,14 +202,56 @@ export default class XHRUpload extends React.Component {
     const items = this.state.items;
     if(items) {
       items.filter(item => !item.cancelled).forEach((item) => {
-        this.uploadFile(item.file, progress => {
-          this.updateFileProgress(item.index, progress);
-        });
+        this.uploadItem(item);
       });
     }
   }
 
-  uploadFile(file, progressCalback) {
+  uploadItem(item) {
+    if(this.props.chunks) {
+      const BYTES_PER_CHUNK = this.props.chunkSize;
+      const SIZE = item.file.size;
+
+      let start = 0;
+      let end = BYTES_PER_CHUNK;
+
+      const chunkProgressHandler = (percentage, chunkIndex) => {
+        this.updateFileChunkProgress(item.index, chunkIndex, percentage);
+      };
+      let chunkIndex = 0;
+      while(start < SIZE) {
+        this.uploadChunk(item.file.slice(start, end), chunkIndex++, item.file.name, chunkProgressHandler);
+        start = end;
+        end = start + BYTES_PER_CHUNK;
+      }
+    } else {
+      this.uploadFile(item.file, progress => {
+        this.updateFileProgress(item.index, progress);
+      });
+    }
+  }
+
+  uploadChunk(blob, chunkIndex, fileName, progressCallback) {
+    if(blob) {
+      const formData = new FormData();
+      const xhr = new XMLHttpRequest();
+
+      formData.append(this.props.fieldName, blob, `${fileName}-chunk${chunkIndex}`);
+
+      xhr.onload = () => {
+        progressCallback(100, chunkIndex);
+      };
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          progressCallback((e.loaded / e.total) * 100, chunkIndex);
+        }
+      };
+      xhr.open('POST', this.props.url, true);
+      xhr.send(formData);
+    }
+  }
+
+  uploadFile(file, progressCallback) {
     if(file) {
       const formData = new FormData();
       const xhr = new XMLHttpRequest();
@@ -204,12 +259,12 @@ export default class XHRUpload extends React.Component {
       formData.append(this.props.fieldName, file, file.name);
 
       xhr.onload = () => {
-        progressCalback(100);
+        progressCallback(100);
       };
 
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) {
-          progressCalback((e.loaded / e.total) * 100);
+          progressCallback((e.loaded / e.total) * 100);
         }
       };
 
@@ -222,6 +277,13 @@ export default class XHRUpload extends React.Component {
   filesToItems(files) {
     const fileItems = Array.prototype.slice.call(files).slice(0, this.props.maxFiles);
     const items = fileItems.map((f, i) => {
+      if(this.props.chunks) {
+        const chunkProgress = [];
+        for(let j = 0; j <= f.size / this.props.chunkSize; j++) {
+          chunkProgress.push(0);
+        }
+        return {file: f, index: i, progress: 0, cancelled: false, chunkProgress: chunkProgress};
+      }
       return {file: f, index: i, progress: 0, cancelled: false};
     });
     return items;
