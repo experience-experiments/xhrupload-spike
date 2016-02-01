@@ -1,1 +1,1 @@
-export {encrypt} from 'sljs';
+export {encrypt} from 'sjcl';

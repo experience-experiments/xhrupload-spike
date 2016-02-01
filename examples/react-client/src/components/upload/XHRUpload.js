@@ -236,7 +236,13 @@ export default class XHRUpload extends React.Component {
       const formData = new FormData();
       const xhr = new XMLHttpRequest();
 
-      formData.append(this.props.fieldName, blob, `${fileName}-chunk${chunkIndex}`);
+      let blobToUpload = blob;
+      if(this.props.encrypt){
+        blobToUpload = this.props.encryptor(this.props.encryptionKey, blob);
+      }
+      console.log(blob);
+      console.log(blobToUpload);
+      formData.append(this.props.fieldName, blobToUpload, `${fileName}-chunk${chunkIndex}`);
 
       xhr.onload = () => {
         progressCallback(100, chunkIndex);

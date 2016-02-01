@@ -9,4 +9,4 @@
   - The payload should be encrypted in server-side storage or further transfers after the HTTPS transfer.
   - The encryption key shall doesn't need to be transferred to the server-side.
 - Encryption of data requires all data to be loaded in memory (it is a memory intense exercise)
--
+- There is a chromium issue for working with blobs that are greater than 512Mb in size. Here is the [link](https://code.google.com/p/chromium/issues/detail?id=375297) to the issue.
