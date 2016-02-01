@@ -10,3 +10,30 @@
   - The encryption key shall doesn't need to be transferred to the server-side.
 - Encryption of data requires all data to be loaded in memory (it is a memory intense exercise)
 - There is a chromium issue for working with blobs that are greater than 512Mb in size. Here is the [link](https://code.google.com/p/chromium/issues/detail?id=375297) to the issue.
+- Encryption for blobs is not just a simple function call to sjcl.encrypt. Following preparations need to be made to encrypt blobs, however these may need to be treated as base64 strings after encryption.
+
+```
+var cs = {
+  v: 1,
+  iter: 1000,
+  ks: 256,
+  ts: 128,
+  mode: "ocb2",
+  cipher: "aes"
+};
+
+cs.salt = sjcl.random.randomWords(2, 2);
+cs.iv = sjcl.random.randomWords(4, 2);
+
+var pwd = sjcl.misc.pbkdf2(pass, cs.salt, cs.iter);
+var prp = new sjcl.cipher[cs.cipher](pwd);
+//cs.adata = "hint";
+//var adata = sjcl.codec.utf8String.toBits(cs.adata);
+
+var blob = item.file.slice(start, end);
+var bitsSlice = sjcl.codec.bytes.toBits(new Uint8Array(blob));
+var encryptedSlice = sjcl.mode[cs.mode].encrypt(prp, bitsSlice, cs.iv, adata, cs.ts);
+var encryptedBase64Slice = sjcl.codec.base64.fromBits(encryptedSlice);
+
+
+```
